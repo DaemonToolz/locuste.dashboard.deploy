@@ -1,0 +1,48 @@
+﻿<Page
+    x:Class="locuste.dashboard.deploy.uwp.Frames.BlankPage1"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:locuste.dashboard.deploy.uwp.Frames"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="250"></RowDefinition>
+            <RowDefinition/>
+            <RowDefinition/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <TextBlock Grid.Column="1" FontSize="36" FontWeight="Bold" FontFamily="Arial Black" HorizontalAlignment="Center" VerticalAlignment="Center">
+            Bienvenue
+        </TextBlock>
+        <StackPanel  Grid.Column="1" Grid.Row="1">
+            <TextBox PlaceholderText="Nom de l'appareil à enregistrer" Height="30"></TextBox>
+            <TextBox PlaceholderText="Adresse IP"></TextBox>
+        </StackPanel>
+
+        <Button  Grid.Column="1" x:Name="ValidateBtn" Grid.Row="2" HorizontalAlignment="Stretch">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+    
+                </Grid.ColumnDefinitions>
+              
+                <SymbolIcon Margin="0,0,10,0" Grid.Column="0" Symbol="Add" HorizontalAlignment="Stretch" VerticalAlignment="Center"></SymbolIcon>
+                <TextBlock Grid.Column="1" Text="Ajouter" HorizontalAlignment="Stretch" VerticalAlignment="Center"> </TextBlock>
+            </Grid>
+        </Button>
+    </Grid>
+</Page>
