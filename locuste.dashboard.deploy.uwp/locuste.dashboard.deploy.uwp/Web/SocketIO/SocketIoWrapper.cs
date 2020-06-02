@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using H.Socket.IO;
 using H.Socket.IO.EventsArgs;
@@ -16,34 +19,77 @@ namespace locuste.dashboard.deploy.uwp.Web.SocketIO
         {
             _uri = target;
             _client = new SocketIoClient();
-
             _client.Connected += onConnected;
             _client.Disconnected += onDisconnected;
-            _client.On<FileCopyInfo>("progress", data => { });
+            _client.EventReceived += (sender, args) =>
+            {
+                Debug.WriteLine(
+                        $"EventReceived: Namespace: {args.Namespace}, Value: {args.Value}, IsHandled: {args.IsHandled}");
+            };
+            _client.HandledEventReceived += (sender, args) =>
+            {
+                Debug.WriteLine($"HandledEventReceived: Namespace: {args.Namespace}, Value: {args.Value}");
+            };
+            _client.UnhandledEventReceived += (sender, args) =>
+            {
+                Debug.WriteLine($"UnhandledEventReceived: Namespace: {args.Namespace}, Value: {args.Value}");
+            };
+            _client.ErrorReceived += (sender, args) =>
+            {
+                Debug.WriteLine($"ErrorReceived: Namespace: {args.Namespace}, Value: {args.Value}");
+            };
+            _client.ExceptionOccurred += (sender, args) =>
+            {
+                Debug.WriteLine($"ExceptionOccurred: {args.Value}");
+            };
 
-            _client.On<ProgressIndicator>("install", data => { });
+            _client.On<FileCopyInfo>("progress", data =>
+            {
+                Debug.WriteLine(data);
+            }, "/");
+
+            _client.On<ProgressIndicator>("install", data =>
+            {
+                Debug.WriteLine(data);
+            }, "/");
 
 
         }
 
-        public async void Connect()
+        public async Task<bool> Connect()
         {
-            await _client.ConnectAsync(new Uri(_uri));
+            try
+            {
+                await _client.ConnectAsync(new Uri($"ws://{_uri}:31000/socket.io/?EIO=4&transport=websocket"));
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
         }
 
         public async void Disconnect()
         {
-            await _client.DisconnectAsync();
+            try
+            {
+                await _client.DisconnectAsync();
+               
+            }
+            catch
+            { 
+               // Find a way to display the error
+            }
         }
 
         private void onConnected(object sender, SocketIoEventEventArgs args )
         {
-            Console.WriteLine($"Connected: {args.Namespace}");
+            
         }
 
         private void onDisconnected(object sender, WebSocketCloseEventArgs args)
         {
-            Console.WriteLine($"Disconnected. Reason: {args.Reason}, Status: {args.Status:G}");
+          
         }
         private void ReleaseUnmanagedResources()
         {

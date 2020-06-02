@@ -1,4 +1,5 @@
 ﻿using Windows.Devices.Geolocation;
+using Newtonsoft.Json;
 
 namespace locuste.dashboard.deploy.uwp.Models
 {
@@ -11,7 +12,11 @@ namespace locuste.dashboard.deploy.uwp.Models
 
     public class ProgressIndicator
     {
+
+        [JsonProperty("status")]
         public EventStatus Status;
+
+        [JsonProperty("message")]
         public string Message;
     }
 }

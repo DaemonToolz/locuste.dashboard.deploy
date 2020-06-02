@@ -4,7 +4,8 @@
   xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
   xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
   xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
-  IgnorableNamespaces="uap mp">
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap mp rescap">
 
   <Identity
     Name="0af7fa2f-a716-45d2-a4b1-7945f13a673c"
@@ -46,11 +47,39 @@
           <uap:Rotation Preference="landscapeFlipped"/></uap:InitialRotationPreference>
         <uap:LockScreen Notification="badgeAndTileText" BadgeLogo="Assets\BadgeLogo.png"/>
       </uap:VisualElements>
+      <Extensions>
+        <uap:Extension Category="windows.fileTypeAssociation">
+          <uap:FileTypeAssociation Name="locuste.dashboard.uwp">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.zip</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap:Logo>Assets\locuste.dashboard.deploy.png</uap:Logo>
+            <uap:DisplayName>Locuste Updater</uap:DisplayName>
+            <uap:EditFlags OpenIsSafe="true" />
+            <uap:InfoTip>Lanceur et application de mise à jour des applications LOCUSTE</uap:InfoTip>
+          </uap:FileTypeAssociation>
+        </uap:Extension>
+        <uap:Extension Category="windows.fileOpenPicker">
+          <uap:FileOpenPicker>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.zip</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileOpenPicker>
+        </uap:Extension>
+        <uap:Extension Category="windows.fileSavePicker">
+          <uap:FileSavePicker>
+            <uap:SupportedFileTypes>
+              <uap:FileType>.zip</uap:FileType>
+            </uap:SupportedFileTypes>
+          </uap:FileSavePicker>
+        </uap:Extension>
+      </Extensions>
     </Application>
   </Applications>
 
   <Capabilities>
+    <rescap:Capability Name="broadFileSystemAccess" />
     <Capability Name="internetClient" />
-    <DeviceCapability Name="lowLevel"/>
+
   </Capabilities>
 </Package>
