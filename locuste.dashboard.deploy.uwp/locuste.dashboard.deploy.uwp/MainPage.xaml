@@ -9,18 +9,23 @@
 
     <Grid>
         <!-- Mettre une Frame ici -->
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"></RowDefinition>
-            <RowDefinition Height="*"></RowDefinition>
-        </Grid.RowDefinitions>
-        <CommandBar Grid.Row="0">
-            <AppBarButton x:Name="UpdaterMenuBtn" Icon="Sync" Label="Mises à jours" Click="UpdaterMenuBtn_Click"></AppBarButton>
-            <AppBarButton x:Name="AddDeviceBtn" Icon="Add" Label="Ajouter des appareils" Click="AddDeviceBtn_Click"></AppBarButton>
-            <AppBarButton Icon="Setting" Label="Réglage"></AppBarButton>
-        </CommandBar>
+        <NavigationView PaneTitle="Menu" ItemInvoked="NavigationView_ItemInvoked" IsBackButtonVisible="Collapsed" IsPaneOpen="False">
+            <NavigationView.MenuItems>
+                <NavigationViewItem Icon="Sync"  x:Name="ActionMenuItem">
+                    <TextBlock Tag="ActionMenuItemText">Mettre à jour</TextBlock>
+                </NavigationViewItem>
+                <NavigationViewItem Icon="Add"  x:Name="AddMenuItem">
+                    <TextBlock Tag="AddMenuItemText">Ajouter des appareils</TextBlock>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <Frame x:Name="TopFrame" >
+                <Frame.ContentTransitions>
+                    <TransitionCollection>
+                        <NavigationThemeTransition/>
+                    </TransitionCollection>
+                </Frame.ContentTransitions>
+            </Frame>
+        </NavigationView>
 
-        <Frame x:Name="TopFrame" Grid.Row="1">
-
-        </Frame>
     </Grid>
 </Page>

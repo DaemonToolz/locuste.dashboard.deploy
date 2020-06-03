@@ -32,11 +32,19 @@ namespace locuste.dashboard.deploy.uwp.Frames
     public sealed partial class ActionPage : Page, INotifyPropertyChanged
     {
         private SocketIoWrapper SocketListener;
-        private HttpClient Client;
+
+        private HttpClient _client;
+        private Rect _size;
         public ActionPage()
         {
             RegisteredDevices = DeviceDiscovery.DiscoverRegisteredDevices();
             this.InitializeComponent();
+            var sz = Window.Current.Bounds;
+            sz.Width /= 2;
+            Size = sz;
+
+            this.SizeChanged += MainPage_SizeChanged;
+  
             NavigationCacheMode = NavigationCacheMode.Enabled;
             MainSection.DataContext = this;
         }
@@ -48,10 +56,34 @@ namespace locuste.dashboard.deploy.uwp.Frames
             Device = new DeviceInfo()
         };
 
+
+        private FileCopyInfoVM _copyInfo = new FileCopyInfoVM()
+        {
+            Info = new FileCopyInfo()
+        };
+
+        private ProgressIndicatorVM _installInfo = new ProgressIndicatorVM()
+        {
+            Indicator = new ProgressIndicator()
+        };
+
+        public FileCopyInfoVM CopyInfo
+        {
+            get => _copyInfo;
+            private set => SetField(ref _copyInfo, value);
+        }
+
+        public ProgressIndicatorVM InstallInfo
+        {
+            get => _installInfo;
+            private set => SetField(ref _installInfo, value);
+        }
+
+
         public DeviceInfoVM TargetDevice
         {
             get => _targetDevice;
-            set => SetField(ref _targetDevice, value);
+            private  set => SetField(ref _targetDevice, value);
         }
 
         private ObservableCollection<DeviceInfoVM> _registeredDevices = new ObservableCollection<DeviceInfoVM>();
@@ -72,13 +104,56 @@ namespace locuste.dashboard.deploy.uwp.Frames
 
         }
 
+        public HttpClient Client
+        {
+            get => _client;
+            set => SetField(ref _client, value);
+
+        }
+
+        private bool _versionLoadingPanel = false;
+
+        private bool VersionLoadingPanel
+        {
+            get => _versionLoadingPanel;
+            set => SetField(ref _versionLoadingPanel, value);
+
+        }
+
+        private bool _isConnecting = false;
+
+        public bool IsConnecting
+        {
+            get => _isConnecting;
+            private set => SetField(ref _isConnecting, value);
+
+        }
+
+
+        private bool _ongoingOperation = false;
+
+        public bool OngoingOperation
+        {
+            get => _ongoingOperation;
+            set => SetField(ref _ongoingOperation, value);
+
+        }
+
+        public Rect Size
+        {
+            get => _size;
+            set => SetField(ref _size, value);
+
+        }
+
+
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        protected bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
+        private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return false;
             field = value;
@@ -86,32 +161,56 @@ namespace locuste.dashboard.deploy.uwp.Frames
             return true;
         }
 
-        private void DeleteDeviceBtn_Click(object sender, RoutedEventArgs e)
-        {
-            string valueToDelete = (sender as FrameworkElement).Tag as string;
-            ApplicationData.Current.LocalSettings.Values.Remove($"Device_{valueToDelete}");
-            RegisteredDevices.Remove(RegisteredDevices.Single(device => device.Device.Name == valueToDelete));
-        }
-
+ 
         private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             HasSelection = false;
             if (TargetDevice == null){ return;}
 
+            IsConnecting = true;
             SocketListener?.Disconnect();
 
             SocketListener = new SocketIoWrapper(TargetDevice.Device.IPAddress);
             SocketListener.Connect().ContinueWith(result =>
             {
+             
                 void  AgileCallback()
                 {
+                    IsConnecting = false;
                     HasSelection = result.Result;
+                    Client = new HttpClient(TargetDevice.Device.IPAddress);
                 }
 
+                SocketListener.FileCopyInfoHandler += FileCopyInfoReceived;
+                SocketListener.ProgressUpdateHandler += ProgressReceived;
+
                 Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, AgileCallback);
-                Client = new HttpClient(TargetDevice.Device.IPAddress);
+                
 
             });
+        }
+
+        private void FileCopyInfoReceived(object sender, FileCopyInfoArgs args)
+        {
+      
+            _ = Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+                () =>
+                {
+                    CopyInfo = new FileCopyInfoVM(args);
+
+                    OngoingOperation = args.FileCount != args.FileIndex;
+                });
+
+        }
+
+
+        private void ProgressReceived(object sender, ProgressIndicatorArgs args)
+        { 
+            _   = Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+                () =>
+                {
+                    InstallInfo = new ProgressIndicatorVM(args);
+                });
         }
 
         private void ListVersionBtn_Click(object sender, RoutedEventArgs e)
@@ -133,17 +232,8 @@ namespace locuste.dashboard.deploy.uwp.Frames
 
         private async void VersionUploadBtn_Click(object sender, RoutedEventArgs e)
         {
-            var picker = new Windows.Storage.Pickers.FileOpenPicker()
-            {
-                ViewMode = Windows.Storage.Pickers.PickerViewMode.Thumbnail,
-                SuggestedStartLocation = PickerLocationId.DocumentsLibrary
-            };
-            picker.FileTypeFilter.Add(".zip");
-            Windows.Storage.StorageFile file = await picker.PickSingleFileAsync();
-            if (file != null)
-            {
-                Client.SendInstallPackage("beta-test", file);
-            }
+            VersionLoadingPanel = !VersionLoadingPanel;
+          
         }
 
         private void DeleteVersionBtn_Click(object sender, RoutedEventArgs e)
@@ -161,6 +251,31 @@ namespace locuste.dashboard.deploy.uwp.Frames
                 });
 
             });
+        }
+
+        private void InstallVersionBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Client.GetVersions().ContinueWith(results =>
+            {
+                Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    var dialog = new VersionInstallDialog(results.Result, _client)
+                    {
+                        Title = "Installer une version",
+                    };
+
+                    await dialog.ShowAsync();
+                });
+
+            });
+          
+        }
+
+        private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            var sz = Window.Current.Bounds;
+            sz.Width /= 2;
+            Size = sz;
         }
     }
 }

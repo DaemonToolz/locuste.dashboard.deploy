@@ -3,56 +3,33 @@ using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
-using H.Socket.IO;
-using H.Socket.IO.EventsArgs;
-using H.WebSockets.Args;
 using locuste.dashboard.deploy.uwp.Models;
+using locuste.dashboard.deploy.uwp.Utils;
+using SocketIOClient;
 
 namespace locuste.dashboard.deploy.uwp.Web.SocketIO
 {
-    public class SocketIoWrapper : IDisposable
+    public class SocketIoWrapper
     {
         private string _uri;
-        private SocketIoClient _client;
+        private SocketIOClient.SocketIO _client;
 
         public SocketIoWrapper(string target)
         {
             _uri = target;
-            _client = new SocketIoClient();
-            _client.Connected += onConnected;
-            _client.Disconnected += onDisconnected;
-            _client.EventReceived += (sender, args) =>
+            _client = new SocketIOClient.SocketIO(new Uri($"ws://{_uri}:31000/"));
+            _client.OnConnected += onConnected;
+            
+            _client.OnDisconnected += onDisconnected;
+            _client.On("progress", data => {
+                var value = data.GetValue<FileCopyInfo>();
+                OnFileCopyInfoHandlerEvent(new FileCopyInfoArgs(value));
+            });
+            _client.On("install", data =>
             {
-                Debug.WriteLine(
-                        $"EventReceived: Namespace: {args.Namespace}, Value: {args.Value}, IsHandled: {args.IsHandled}");
-            };
-            _client.HandledEventReceived += (sender, args) =>
-            {
-                Debug.WriteLine($"HandledEventReceived: Namespace: {args.Namespace}, Value: {args.Value}");
-            };
-            _client.UnhandledEventReceived += (sender, args) =>
-            {
-                Debug.WriteLine($"UnhandledEventReceived: Namespace: {args.Namespace}, Value: {args.Value}");
-            };
-            _client.ErrorReceived += (sender, args) =>
-            {
-                Debug.WriteLine($"ErrorReceived: Namespace: {args.Namespace}, Value: {args.Value}");
-            };
-            _client.ExceptionOccurred += (sender, args) =>
-            {
-                Debug.WriteLine($"ExceptionOccurred: {args.Value}");
-            };
-
-            _client.On<FileCopyInfo>("progress", data =>
-            {
-                Debug.WriteLine(data);
-            }, "/");
-
-            _client.On<ProgressIndicator>("install", data =>
-            {
-                Debug.WriteLine(data);
-            }, "/");
-
+                var value = data.GetValue<ProgressIndicator>();
+                OnProgressUpdateEvent(new ProgressIndicatorArgs(value));
+            });
 
         }
 
@@ -60,9 +37,10 @@ namespace locuste.dashboard.deploy.uwp.Web.SocketIO
         {
             try
             {
-                await _client.ConnectAsync(new Uri($"ws://{_uri}:31000/socket.io/?EIO=4&transport=websocket"));
+                await _client.ConnectAsync();
+                
             }
-            catch
+            catch  // Error case => on connection failed (e.g. target unavailable)
             {
                 return false;
             }
@@ -82,23 +60,31 @@ namespace locuste.dashboard.deploy.uwp.Web.SocketIO
             }
         }
 
-        private void onConnected(object sender, SocketIoEventEventArgs args )
-        {
-            
+        public event EventHandler<ProgressIndicatorArgs> ProgressUpdateHandler;
+        public event EventHandler<FileCopyInfoArgs> FileCopyInfoHandler;
+
+        protected virtual void OnProgressUpdateEvent(ProgressIndicatorArgs e) {
+            var handler = ProgressUpdateHandler;
+            handler?.Invoke(this, e);
         }
 
-        private void onDisconnected(object sender, WebSocketCloseEventArgs args)
-        {
-          
-        }
-        private void ReleaseUnmanagedResources()
-        {
-            _client.Dispose();
+ 
+        protected virtual void OnFileCopyInfoHandlerEvent(FileCopyInfoArgs e) {
+            var handler = FileCopyInfoHandler;
+            handler?.Invoke(this, e);
         }
 
-        public void Dispose()
+
+        private async void onConnected(object sender, EventArgs args )
         {
-            ReleaseUnmanagedResources();
+     
         }
+
+        private  async void onDisconnected(object sender, string args)
+        {
+     
+        }
+  
+
     }
 }

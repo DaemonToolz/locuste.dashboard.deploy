@@ -101,6 +101,10 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Optimize>false</Optimize>
+    <EnableGatekeeperAnalysis>false</EnableGatekeeperAnalysis>
+    <UseDotNetNativeToolchain>false</UseDotNetNativeToolchain>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -124,6 +128,9 @@
     <Compile Include="Controls\Dialogs\VersionDeleteDialog.xaml.cs">
       <DependentUpon>VersionDeleteDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Controls\Dialogs\VersionInstallDialog.xaml.cs">
+      <DependentUpon>VersionInstallDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\Dialogs\VersionListDialog.xaml.cs">
       <DependentUpon>VersionListDialog.xaml</DependentUpon>
     </Compile>
@@ -131,6 +138,9 @@
       <DependentUpon>ActionPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Frames\FrameUtils.cs" />
+    <Compile Include="Controls\PackageUploaderControl.xaml.cs">
+      <DependentUpon>PackageUploaderControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Frames\RegisterPage.xaml.cs">
       <DependentUpon>RegisterPage.xaml</DependentUpon>
     </Compile>
@@ -142,8 +152,11 @@
     <Compile Include="Models\ProgressIndicator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\DeviceDiscovery.cs" />
+    <Compile Include="Utils\JsonParser.cs" />
     <Compile Include="ViewModels\Bindable.cs" />
     <Compile Include="ViewModels\DeviceInfoVM.cs" />
+    <Compile Include="ViewModels\FileCopyInfoVM.cs" />
+    <Compile Include="ViewModels\ProgressIndicatorVM.cs" />
     <Compile Include="Web\Http\HttpClient.cs" />
     <Compile Include="Web\SocketIO\SocketIoWrapper.cs" />
   </ItemGroup>
@@ -221,11 +234,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Controls\Dialogs\VersionInstallDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\Dialogs\VersionListDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Frames\ActionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Controls\PackageUploaderControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -245,9 +266,6 @@
     <PackageReference Include="Flurl.Http">
       <Version>2.4.2</Version>
     </PackageReference>
-    <PackageReference Include="H.Socket.IO">
-      <Version>1.0.0.2</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.10</Version>
     </PackageReference>
@@ -259,6 +277,9 @@
     </PackageReference>
     <PackageReference Include="RestSharp">
       <Version>106.11.4</Version>
+    </PackageReference>
+    <PackageReference Include="SocketIOClient">
+      <Version>2.0.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

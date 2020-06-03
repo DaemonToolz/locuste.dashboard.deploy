@@ -1,0 +1,19 @@
+﻿<ContentDialog
+    x:Class="locuste.dashboard.deploy.uwp.Controls.Dialogs.VersionInstallDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:locuste.dashboard.deploy.uwp.Controls.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="{x:Bind Title}"
+    PrimaryButtonText="Sélectionner"
+    SecondaryButtonText="Fermer"
+    PrimaryButtonClick="VersionInstallDialog_OnPrimaryButtonClick">
+
+    <Grid>
+        <Grid>
+            <ListView x:Name="VersionList" SelectionMode="Single" SelectedItem="{x:Bind Versions}"></ListView>
+        </Grid>
+    </Grid>
+</ContentDialog>

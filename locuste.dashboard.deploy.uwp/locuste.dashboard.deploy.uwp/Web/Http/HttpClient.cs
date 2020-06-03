@@ -46,7 +46,7 @@ namespace locuste.dashboard.deploy.uwp.Web.Http
                 );
 
             }
-            catch
+            catch // Trouver un moeyen de remonter l'erreur'
             {
 
             }

@@ -25,14 +25,24 @@ namespace locuste.dashboard.deploy.uwp
             return item != null;
         }
 
-        private void AddDeviceBtn_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+  
+        private void NavigationView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            TopFrame.Navigate(typeof(RegisterPage));
-        }
+            if (args.InvokedItem is TextBlock ItemContent)
+            {
+                switch (ItemContent.Tag)
+                {
+                    case "ActionMenuItemText":
+                        TopFrame.Navigate(typeof(ActionPage));
+                        break;
 
-        private void UpdaterMenuBtn_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
-        {
-            TopFrame.Navigate(typeof(ActionPage));
+                    case "AddMenuItemText":
+                        TopFrame.Navigate(typeof(RegisterPage));
+                        break;
+
+           
+                }
+            }
         }
     }
 }
