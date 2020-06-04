@@ -11,13 +11,24 @@ namespace locuste.dashboard.deploy.uwp.ViewModels
     {
 
         private ProgressIndicator _indicator;
-
+        private UIStatus _icon;
         public ProgressIndicator Indicator { get => _indicator; set => SetField(ref _indicator, value); }
+        public UIStatus Icon{ get => _icon; set => SetField(ref _icon, value); }
 
-        public ProgressIndicatorVM() { }
+        public ProgressIndicatorVM()
+        {
+
+            Indicator = new ProgressIndicator()
+            {
+                Status = EventStatus.Unknown,
+                Message = "En attente d'instruction"
+            };
+            Icon = Statuses.GetStatus(Indicator.Status);
+        }
         public ProgressIndicatorVM(ProgressIndicator info)
         {
             Indicator = info;
+            Icon = Statuses.GetStatus(info.Status);
         }
 
         public ProgressIndicatorVM(ProgressIndicatorArgs info)
@@ -27,6 +38,8 @@ namespace locuste.dashboard.deploy.uwp.ViewModels
                 Message = info.Message,
                 Status = info.Status
             };
+
+            Icon = Statuses.GetStatus(info.Status);
         }
 
     }

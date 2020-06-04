@@ -96,7 +96,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
             }
         }
 
-        private async void SendFilesBtn_Click(object sender, RoutedEventArgs e)
+        private void SendFilesBtn_Click(object sender, RoutedEventArgs e)
         {
             if(Files.Count > 0 && Version.Trim() != "")
             {

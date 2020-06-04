@@ -24,6 +24,7 @@ using Windows.UI.Core;
 using locuste.dashboard.deploy.uwp.Controls.Dialogs;
 using locuste.dashboard.deploy.uwp.Utils;
 using locuste.dashboard.deploy.uwp.Web.Http;
+using Microsoft.Toolkit.Uwp.UI.Extensions;
 
 
 namespace locuste.dashboard.deploy.uwp.Frames
@@ -39,10 +40,10 @@ namespace locuste.dashboard.deploy.uwp.Frames
         {
             RegisteredDevices = DeviceDiscovery.DiscoverRegisteredDevices();
             this.InitializeComponent();
+            InstallInfo = new ProgressIndicatorVM();
             var sz = Window.Current.Bounds;
             sz.Width /= 2;
             Size = sz;
-
             this.SizeChanged += MainPage_SizeChanged;
   
             NavigationCacheMode = NavigationCacheMode.Enabled;
@@ -57,21 +58,11 @@ namespace locuste.dashboard.deploy.uwp.Frames
         };
 
 
-        private FileCopyInfoVM _copyInfo = new FileCopyInfoVM()
-        {
-            Info = new FileCopyInfo()
-        };
-
         private ProgressIndicatorVM _installInfo = new ProgressIndicatorVM()
         {
             Indicator = new ProgressIndicator()
         };
 
-        public FileCopyInfoVM CopyInfo
-        {
-            get => _copyInfo;
-            private set => SetField(ref _copyInfo, value);
-        }
 
         public ProgressIndicatorVM InstallInfo
         {
@@ -91,7 +82,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
         public ObservableCollection<DeviceInfoVM> RegisteredDevices
         {
             get => _registeredDevices;
-            set => SetField(ref _registeredDevices, value);
+            private set => SetField(ref _registeredDevices, value);
 
         }
 
@@ -100,7 +91,16 @@ namespace locuste.dashboard.deploy.uwp.Frames
         public bool HasSelection
         {
             get => _hasSelection;
-            set => SetField(ref _hasSelection, value);
+            private set => SetField(ref _hasSelection, value);
+
+        }
+
+        private bool _isBusy = false;
+
+        public bool IsBusy
+        {
+            get => _isBusy;
+            private  set => SetField(ref _isBusy, value);
 
         }
 
@@ -179,28 +179,26 @@ namespace locuste.dashboard.deploy.uwp.Frames
                     IsConnecting = false;
                     HasSelection = result.Result;
                     Client = new HttpClient(TargetDevice.Device.IPAddress);
+                    // Bug
+                    //(MainSection.Sections.Single(sec => sec.Name == "ActionMonitorHubSection")
+                    //   .ContentTemplate.LoadContent() as Frame)?.Navigate(typeof(InstallProcessPage), SocketListener);
                 }
 
                 SocketListener.FileCopyInfoHandler += FileCopyInfoReceived;
                 SocketListener.ProgressUpdateHandler += ProgressReceived;
 
                 Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, AgileCallback);
-                
-
             });
         }
 
         private void FileCopyInfoReceived(object sender, FileCopyInfoArgs args)
         {
-      
             _ = Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
                 () =>
                 {
-                    CopyInfo = new FileCopyInfoVM(args);
-
+                    //CopyInfo = new FileCopyInfoVM(args);
                     OngoingOperation = args.FileCount != args.FileIndex;
                 });
-
         }
 
 
@@ -210,6 +208,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
                 () =>
                 {
                     InstallInfo = new ProgressIndicatorVM(args);
+                    IsBusy = InstallInfo.Indicator.Status != EventStatus.InProgress;
                 });
         }
 
@@ -230,7 +229,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
             });
         }
 
-        private async void VersionUploadBtn_Click(object sender, RoutedEventArgs e)
+        private void VersionUploadBtn_Click(object sender, RoutedEventArgs e)
         {
             VersionLoadingPanel = !VersionLoadingPanel;
           
@@ -265,6 +264,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
                     };
 
                     await dialog.ShowAsync();
+                   
                 });
 
             });
@@ -276,6 +276,29 @@ namespace locuste.dashboard.deploy.uwp.Frames
             var sz = Window.Current.Bounds;
             sz.Width /= 2;
             Size = sz;
+        }
+
+        private List<Control> AllChildren(DependencyObject parent)
+        {
+            var _List = new List<Control>();
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var _Child = VisualTreeHelper.GetChild(parent, i);
+                if (_Child is Control)
+                {
+                    _List.Add(_Child as Control);
+                }
+                _List.AddRange(AllChildren(_Child));
+            }
+            return _List;
+        }
+
+
+        private T FindControl<T>(DependencyObject parentContainer, string controlName)
+        {
+            var childControls = AllChildren(parentContainer);
+            var control = childControls.OfType<Control>().Where(x => x.Name.Equals(controlName)).Cast<T>().First();
+            return control;
         }
     }
 }

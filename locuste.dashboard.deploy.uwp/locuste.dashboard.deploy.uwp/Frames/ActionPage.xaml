@@ -103,27 +103,18 @@
                     <local:PackageUploaderControl  MinWidth="400"  MyHttpClient="{x:Bind Client, Mode=TwoWay}" Width="{x:Bind Size.Width, Mode=OneWay}" Height="{x:Bind Size.Height, Mode=OneWay}"></local:PackageUploaderControl>
                 </DataTemplate>
             </HubSection>
-            <HubSection Visibility="{x:Bind HasSelection, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <HubSection Name="ActionMonitorHubSection" Visibility="{x:Bind HasSelection, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" MinWidth="150" Width="{x:Bind Size.Width, Mode=OneWay}" Height="{x:Bind Size.Height, Mode=OneWay}">
                 <HubSection.Header>
                     Exécution
                 </HubSection.Header>
                 <DataTemplate x:DataType="local:ActionPage">
-                    <!-- Mettre une Frame ici pour casser les différents opérations (à venir)-->
-                    <StackPanel MinWidth="150" Width="{x:Bind Size.Width, Mode=OneWay}" Height="{x:Bind Size.Height, Mode=OneWay}">
-                        <TextBlock HorizontalAlignment="Stretch" FontWeight="Bold">Type d'opération</TextBlock>
-                        <TextBlock  HorizontalAlignment="Stretch" Text="{x:Bind InstallInfo.Indicator.Message, Mode=OneWay}"></TextBlock>
+                    <Frame x:Name="MonitorFrame"  MinWidth="150" Width="{x:Bind Size.Width, Mode=OneWay}" Height="{x:Bind Size.Height, Mode=OneWay}"></Frame>
 
-                        <FontIcon HorizontalAlignment="Center"  Visibility="{x:Bind OngoingOperation, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}" FontSize="150" FontFamily="Segoe MDL2 Assets" Foreground="Green" Glyph="&#xE73D;"  Margin="0,7,0,7"/>
-                        <ProgressRing HorizontalAlignment="Center"   Visibility="{x:Bind OngoingOperation, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" IsActive="{x:Bind OngoingOperation, Mode=OneWay}"  Width="150" Height="150" Margin="0,7,0,7"></ProgressRing>
-
-                        <TextBlock FontWeight="Normal" HorizontalAlignment="Center" Margin="0,5,0,0" Text="{x:Bind CopyInfo.Info.CurrentFile, Mode=OneWay}"></TextBlock>
-                        <TextBlock FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10,0,10" ></TextBlock>
-                        <ProgressBar HorizontalAlignment="Stretch" Minimum="0" Maximum="{x:Bind CopyInfo.Info.FileCount, Mode=OneWay}" Value="{x:Bind CopyInfo.Info.FileIndex, Mode=OneWay}"></ProgressBar>
-                    </StackPanel>
                 </DataTemplate>
             </HubSection>
         </Hub>
-        <Grid Visibility="{x:Bind IsConnecting, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" Background="#BF000000">
+  
+    <Grid Visibility="{x:Bind IsConnecting, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" Background="#BF000000">
             <ProgressRing Visibility="{x:Bind IsConnecting, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" IsActive="{x:Bind IsConnecting, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="250" Height="250" ></ProgressRing>
             <TextBlock Visibility="{x:Bind IsConnecting, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center">Veuillez patienter</TextBlock>
         </Grid>

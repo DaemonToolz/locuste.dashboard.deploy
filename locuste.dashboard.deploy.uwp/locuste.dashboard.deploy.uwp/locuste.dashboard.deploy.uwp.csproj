@@ -141,6 +141,9 @@
     <Compile Include="Controls\PackageUploaderControl.xaml.cs">
       <DependentUpon>PackageUploaderControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Frames\InstallProcessPage.xaml.cs">
+      <DependentUpon>InstallProcessPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Frames\RegisterPage.xaml.cs">
       <DependentUpon>RegisterPage.xaml</DependentUpon>
     </Compile>
@@ -157,6 +160,7 @@
     <Compile Include="ViewModels\DeviceInfoVM.cs" />
     <Compile Include="ViewModels\FileCopyInfoVM.cs" />
     <Compile Include="ViewModels\ProgressIndicatorVM.cs" />
+    <Compile Include="ViewModels\UIStatus.cs" />
     <Compile Include="Web\Http\HttpClient.cs" />
     <Compile Include="Web\SocketIO\SocketIoWrapper.cs" />
   </ItemGroup>
@@ -247,6 +251,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Controls\PackageUploaderControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Frames\InstallProcessPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

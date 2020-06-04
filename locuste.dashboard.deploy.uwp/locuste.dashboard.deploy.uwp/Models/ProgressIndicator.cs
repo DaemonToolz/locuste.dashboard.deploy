@@ -6,7 +6,8 @@ namespace locuste.dashboard.deploy.uwp.Models
 {
     public enum EventStatus
     {
-        Success = 0,
+        Unknown = -1,
+        Success,
         InProgress,
         Error
     }
