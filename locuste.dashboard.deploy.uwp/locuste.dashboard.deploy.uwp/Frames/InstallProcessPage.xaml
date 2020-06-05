@@ -6,8 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
     mc:Ignorable="d"
-    Width="{x:Bind Width, Mode=OneWay}"
-    Height="{x:Bind Height, Mode=OneWay}"
+
 
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -16,8 +15,17 @@
         <converters:BoolToObjectConverter x:Key="InverseBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
     </Page.Resources>
 
-    <StackPanel Width="{x:Bind Width, Mode=OneWay}" Height="{x:Bind Height, Mode=OneWay}">
-        <TextBlock HorizontalAlignment="Stretch" FontWeight="Bold">Type d'opération</TextBlock>
+    <StackPanel Spacing="10">
+        <Grid >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.ColumnSpacing>5</Grid.ColumnSpacing>
+            <Button HorizontalAlignment="Stretch" x:Name="InstallVersionBtn" Click="InstallVersionBtn_Click" > Installer une version</Button>
+            <Button  HorizontalAlignment="Stretch" Grid.Column="1" x:Name="UninstallBtn" Click="UninstallBtn_Click" >Désinstaller une version</Button>
+        </Grid>
+
 
         <Grid HorizontalAlignment="Center" Width="250" Height="250" Margin="0,7,0,7" >
             <FontIcon FontSize="150" FontFamily="Segoe MDL2 Assets" Foreground="{x:Bind InstallInfo.Icon.Foreground, Mode=OneWay}" Glyph="{x:Bind InstallInfo.Icon.Content, Mode=OneWay}" />

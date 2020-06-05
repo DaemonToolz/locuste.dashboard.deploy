@@ -10,7 +10,7 @@
   <Identity
     Name="0af7fa2f-a716-45d2-a4b1-7945f13a673c"
     Publisher="CN=Axel MACIEJEWSKI"
-    Version="1.0.0.0" />
+    Version="2.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="0af7fa2f-a716-45d2-a4b1-7945f13a673c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -79,6 +79,8 @@
 
   <Capabilities>
     <rescap:Capability Name="broadFileSystemAccess" />
+    <rescap:Capability Name="extendedExecutionUnconstrained"/>
+    <rescap:Capability Name="extendedBackgroundTaskTime"/>
     <Capability Name="internetClient" />
 
   </Capabilities>

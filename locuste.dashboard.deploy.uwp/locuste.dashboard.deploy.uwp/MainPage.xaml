@@ -11,11 +11,14 @@
         <!-- Mettre une Frame ici -->
         <NavigationView PaneTitle="Menu" ItemInvoked="NavigationView_ItemInvoked" IsBackButtonVisible="Collapsed" IsPaneOpen="False">
             <NavigationView.MenuItems>
+                <NavigationViewItem Icon="Home"  x:Name="HomeMenuItem">
+                    <TextBlock Tag="WelcomePage">Page principale</TextBlock>
+                </NavigationViewItem>
                 <NavigationViewItem Icon="Sync"  x:Name="ActionMenuItem">
-                    <TextBlock Tag="ActionMenuItemText">Mettre à jour</TextBlock>
+                    <TextBlock Tag="ActionPage">Mettre à jour</TextBlock>
                 </NavigationViewItem>
                 <NavigationViewItem Icon="Add"  x:Name="AddMenuItem">
-                    <TextBlock Tag="AddMenuItemText">Ajouter des appareils</TextBlock>
+                    <TextBlock Tag="RegisterPage">Ajouter des appareils</TextBlock>
                 </NavigationViewItem>
             </NavigationView.MenuItems>
             <Frame x:Name="TopFrame" >

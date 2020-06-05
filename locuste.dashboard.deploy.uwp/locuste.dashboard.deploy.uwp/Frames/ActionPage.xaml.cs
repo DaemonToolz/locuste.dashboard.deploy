@@ -19,10 +19,12 @@ using locuste.dashboard.deploy.uwp.Models;
 using locuste.dashboard.deploy.uwp.ViewModels;
 using locuste.dashboard.deploy.uwp.Web.SocketIO;
 using System.ComponentModel;
+using Windows.ApplicationModel.ExtendedExecution.Foreground;
 using Windows.Storage.Pickers;
 using Windows.UI.Core;
 using locuste.dashboard.deploy.uwp.Controls.Dialogs;
 using locuste.dashboard.deploy.uwp.Utils;
+using locuste.dashboard.deploy.uwp.Web;
 using locuste.dashboard.deploy.uwp.Web.Http;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
 
@@ -95,12 +97,12 @@ namespace locuste.dashboard.deploy.uwp.Frames
 
         }
 
-        private bool _isBusy = false;
+        private bool _isFree = true;
 
-        public bool IsBusy
+        public bool IsFree
         {
-            get => _isBusy;
-            private  set => SetField(ref _isBusy, value);
+            get => _isFree;
+            private  set => SetField(ref _isFree, value);
 
         }
 
@@ -179,9 +181,6 @@ namespace locuste.dashboard.deploy.uwp.Frames
                     IsConnecting = false;
                     HasSelection = result.Result;
                     Client = new HttpClient(TargetDevice.Device.IPAddress);
-                    // Bug
-                    //(MainSection.Sections.Single(sec => sec.Name == "ActionMonitorHubSection")
-                    //   .ContentTemplate.LoadContent() as Frame)?.Navigate(typeof(InstallProcessPage), SocketListener);
                 }
 
                 SocketListener.FileCopyInfoHandler += FileCopyInfoReceived;
@@ -191,13 +190,18 @@ namespace locuste.dashboard.deploy.uwp.Frames
             });
         }
 
+        private void SessionRevoked(object sender, ExtendedExecutionForegroundRevokedEventArgs args)
+        {
+
+        }
+
         private void FileCopyInfoReceived(object sender, FileCopyInfoArgs args)
         {
             _ = Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
                 () =>
                 {
-                    //CopyInfo = new FileCopyInfoVM(args);
                     OngoingOperation = args.FileCount != args.FileIndex;
+                    IsFree = !OngoingOperation;
                 });
         }
 
@@ -208,7 +212,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
                 () =>
                 {
                     InstallInfo = new ProgressIndicatorVM(args);
-                    IsBusy = InstallInfo.Indicator.Status != EventStatus.InProgress;
+                    IsFree = InstallInfo.Indicator.Status != EventStatus.InProgress;
                 });
         }
 
@@ -231,8 +235,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
 
         private void VersionUploadBtn_Click(object sender, RoutedEventArgs e)
         {
-            VersionLoadingPanel = !VersionLoadingPanel;
-          
+            MonitorAction(typeof(VersionUploaderPage));
         }
 
         private void DeleteVersionBtn_Click(object sender, RoutedEventArgs e)
@@ -254,21 +257,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
 
         private void InstallVersionBtn_Click(object sender, RoutedEventArgs e)
         {
-            Client.GetVersions().ContinueWith(results =>
-            {
-                Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    var dialog = new VersionInstallDialog(results.Result, _client)
-                    {
-                        Title = "Installer une version",
-                    };
-
-                    await dialog.ShowAsync();
-                   
-                });
-
-            });
-          
+            MonitorAction(typeof(InstallProcessPage));
         }
 
         private void MainPage_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -277,28 +266,48 @@ namespace locuste.dashboard.deploy.uwp.Frames
             sz.Width /= 2;
             Size = sz;
         }
-
-        private List<Control> AllChildren(DependencyObject parent)
+        private DependencyObject FindChildControl<T>(DependencyObject control, string ctrlName)
         {
-            var _List = new List<Control>();
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
+            int childNumber = VisualTreeHelper.GetChildrenCount(control);
+            for (int i = 0; i < childNumber; i++)
             {
-                var _Child = VisualTreeHelper.GetChild(parent, i);
-                if (_Child is Control)
+                DependencyObject child = VisualTreeHelper.GetChild(control, i);
+                FrameworkElement fe = child as FrameworkElement;
+                // Not a framework element or is null
+                if (fe == null) return null;
+
+                if (child is T && fe.Name == ctrlName)
                 {
-                    _List.Add(_Child as Control);
+                    // Found the control so return
+                    return child;
                 }
-                _List.AddRange(AllChildren(_Child));
+                else
+                {
+                    // Not found it - search children
+                    DependencyObject nextLevel = FindChildControl<T>(child, ctrlName);
+                    if (nextLevel != null)
+                        return nextLevel;
+                }
             }
-            return _List;
+            return null;
         }
 
-
-        private T FindControl<T>(DependencyObject parentContainer, string controlName)
+        private void StartOrStopAppBtn_Click(object sender, RoutedEventArgs e)
         {
-            var childControls = AllChildren(parentContainer);
-            var control = childControls.OfType<Control>().Where(x => x.Name.Equals(controlName)).Cast<T>().First();
-            return control;
+            MonitorAction(typeof(ManageAppPage));
+        }
+
+        private void MonitorAction(Type t)
+        {
+
+            if (FindChildControl<Frame>(MainSection, "MonitorFrame") is Frame res && res.SourcePageType != t)
+            {
+                res?.Navigate(t, new WebClientParam
+                {
+                    Client = Client,
+                    Wrapper = SocketListener
+                });
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ namespace locuste.dashboard.deploy.uwp
         public MainPage()
         {
             InitializeComponent();
-            TopFrame.Navigate(typeof(ActionPage));
+            TopFrame.Navigate(typeof(WelcomePage));
         }
 
         public async Task<bool> IsFilePresent(string fileName)
@@ -30,17 +30,15 @@ namespace locuste.dashboard.deploy.uwp
         {
             if (args.InvokedItem is TextBlock ItemContent)
             {
-                switch (ItemContent.Tag)
+                try
                 {
-                    case "ActionMenuItemText":
-                        TopFrame.Navigate(typeof(ActionPage));
-                        break;
+                    Type type = Type.GetType($"locuste.dashboard.deploy.uwp.Frames.{ItemContent.Tag}");
+                    TopFrame.Navigate(type);
+                }
+                catch
+                {
+                    TopFrame.Navigate(typeof(ErrorFrame));
 
-                    case "AddMenuItemText":
-                        TopFrame.Navigate(typeof(RegisterPage));
-                        break;
-
-           
                 }
             }
         }

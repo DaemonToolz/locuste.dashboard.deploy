@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using Flurl.Http;
+using locuste.dashboard.deploy.uwp.Models;
 using RestSharp;
+using RestSharp.Serializers.NewtonsoftJson;
 
 namespace locuste.dashboard.deploy.uwp.Web.Http
 {
@@ -19,6 +21,7 @@ namespace locuste.dashboard.deploy.uwp.Web.Http
         private string _uri;
         public HttpClient(string _turi) {
             _client = new RestClient($"http://{_uri = _turi}:30000/");
+            _client.UseNewtonsoftJson();
         }
 
         public Task<List<string>> GetVersions()
@@ -36,6 +39,16 @@ namespace locuste.dashboard.deploy.uwp.Web.Http
             _client.Delete<dynamic>(new RestRequest($"delete/{version}"));
         }
 
+        public Task<ProjectVersion> GetInstalledVersion()
+        {
+            return _client.GetAsync<ProjectVersion>(new RestRequest($"version/current"));
+        }
+
+
+        public Task<ProjectVersion> Uninstall()
+        {
+            return _client.GetAsync<ProjectVersion>(new RestRequest("uninstall"));
+        }
 
         public async void SendInstallPackage(string versionNumber, StorageFile file) {
             try

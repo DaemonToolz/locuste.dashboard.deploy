@@ -15,8 +15,11 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using locuste.dashboard.deploy.uwp.Controls.Dialogs;
 using locuste.dashboard.deploy.uwp.Models;
 using locuste.dashboard.deploy.uwp.ViewModels;
+using locuste.dashboard.deploy.uwp.Web;
+using locuste.dashboard.deploy.uwp.Web.Http;
 using locuste.dashboard.deploy.uwp.Web.SocketIO;
 
 // Pour plus d'informations sur le modèle d'élément Page vierge, consultez la page https://go.microsoft.com/fwlink/?LinkId=234238
@@ -29,6 +32,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
     public sealed partial class InstallProcessPage : Page, INotifyPropertyChanged
     {
         private SocketIoWrapper SocketListener;
+        private HttpClient Client;
         private FileCopyInfoVM _copyInfo = new FileCopyInfoVM()
         {
             Info = new FileCopyInfo()
@@ -80,8 +84,16 @@ namespace locuste.dashboard.deploy.uwp.Frames
                 () =>
                 {
                     CopyInfo = new FileCopyInfoVM(args);
-
-                    OngoingOperation = args.FileCount != args.FileIndex;
+                    OngoingOperation = true;
+                    IsBusy = args.FileCount != args.FileIndex;
+                    if (InstallInfo.Indicator.Status != EventStatus.InProgress)
+                    {
+                        InstallInfo = new ProgressIndicatorVM(new ProgressIndicator()
+                        {
+                            Status =  EventStatus.InProgress,
+                            Message = "Installation en cours"
+                        });
+                    }
                 });
 
         }
@@ -93,7 +105,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
                 () =>
                 {
                     InstallInfo = new ProgressIndicatorVM(args);
-                    IsBusy = InstallInfo.Indicator.Status != EventStatus.InProgress;
+                    OngoingOperation = IsBusy = InstallInfo.Indicator.Status == EventStatus.InProgress;
                 });
         }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -114,10 +126,36 @@ namespace locuste.dashboard.deploy.uwp.Frames
         {
             base.OnNavigatedTo(e);
             
-            SocketListener = (SocketIoWrapper)e.Parameter;
-            if (SocketListener == null) return;
-            SocketListener.FileCopyInfoHandler += FileCopyInfoReceived;
-            SocketListener.ProgressUpdateHandler += ProgressReceived;
+            SocketListener = (e.Parameter as WebClientParam)?.Wrapper;
+            if (SocketListener != null)
+            {
+                SocketListener.FileCopyInfoHandler += FileCopyInfoReceived;
+                SocketListener.ProgressUpdateHandler += ProgressReceived;
+            }
+            Client = (e.Parameter as WebClientParam)?.Client;
+        }
+
+        private void InstallVersionBtn_Click(object sender, RoutedEventArgs e)
+        {
+
+            Client.GetVersions().ContinueWith(results => {
+                Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    var dialog = new VersionInstallDialog(results.Result, Client)
+                    {
+                        Title = "Installer une version",
+                    };
+
+                    await dialog.ShowAsync();
+
+                });
+
+            });
+        }
+
+        private void UninstallBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Client.Uninstall();
         }
     }
 }

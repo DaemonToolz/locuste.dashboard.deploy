@@ -17,7 +17,7 @@
 
     <Grid>
 
-        <Hub Grid.Row="1" x:Name="MainSection" >
+        <Hub  x:Name="MainSection" >
             <Hub.Header>
                 Unité de déploiement
             </Hub.Header>
@@ -37,9 +37,9 @@
                 </DataTemplate>
             </HubSection>
             <HubSection Header="Action" Visibility="{Binding Path=HasSelection, Converter={StaticResource BoolToVisibilityConverter}}">
-                <DataTemplate>
-                <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
-                        <Button Margin="5" HorizontalAlignment="Stretch">
+                <DataTemplate x:DataType="local:ActionPage">
+                    <StackPanel VerticalAlignment="Stretch" HorizontalAlignment="Stretch" >
+                        <Button IsEnabled="{x:Bind IsFree, Mode=OneWay}" x:Name="StartOrStopAppBtn" Margin="5" HorizontalAlignment="Stretch" Click="StartOrStopAppBtn_Click">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
@@ -49,7 +49,7 @@
                                 <TextBlock Grid.Column="1">Démarrer ou arrêter un logiciel</TextBlock>
                             </Grid>
                         </Button>
-                        <Button x:Name="InstallVersionBtn" Margin="5" HorizontalAlignment="Stretch" Click="InstallVersionBtn_Click">
+                        <Button IsEnabled="{x:Bind IsFree, Mode=OneWay}" x:Name="InstallVersionBtn" Margin="5" HorizontalAlignment="Stretch" Click="InstallVersionBtn_Click">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
@@ -60,7 +60,7 @@
                             </Grid>
                         </Button>
 
-                        <Button x:Name="VersionUploadBtn" Margin="5" HorizontalAlignment="Stretch" Click="VersionUploadBtn_Click">
+                        <Button IsEnabled="{x:Bind IsFree, Mode=OneWay}" x:Name="VersionUploadBtn" Margin="5" HorizontalAlignment="Stretch" Click="VersionUploadBtn_Click">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"></ColumnDefinition>
@@ -81,7 +81,7 @@
                                 <TextBlock Grid.Column="1">Lister les versions</TextBlock>
                             </Grid>
                         </Button>
-                    <Button x:Name="DeleteVersionBtn" Margin="5" HorizontalAlignment="Stretch" Click="DeleteVersionBtn_Click">
+                        <Button IsEnabled="{x:Bind IsFree, Mode=OneWay}" x:Name="DeleteVersionBtn" Margin="5" HorizontalAlignment="Stretch" Click="DeleteVersionBtn_Click">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
@@ -95,15 +95,7 @@
                     </StackPanel>
                 </DataTemplate>
             </HubSection>
-            <HubSection Visibility="{x:Bind VersionLoadingPanel, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
-                <HubSection.Header>
-                    Charger une version 
-                </HubSection.Header>
-                <DataTemplate x:DataType="local:ActionPage">
-                    <local:PackageUploaderControl  MinWidth="400"  MyHttpClient="{x:Bind Client, Mode=TwoWay}" Width="{x:Bind Size.Width, Mode=OneWay}" Height="{x:Bind Size.Height, Mode=OneWay}"></local:PackageUploaderControl>
-                </DataTemplate>
-            </HubSection>
-            <HubSection Name="ActionMonitorHubSection" Visibility="{x:Bind HasSelection, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" MinWidth="150" Width="{x:Bind Size.Width, Mode=OneWay}" Height="{x:Bind Size.Height, Mode=OneWay}">
+            <HubSection Name="ActionMonitorHubSection" Visibility="{x:Bind HasSelection, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
                 <HubSection.Header>
                     Exécution
                 </HubSection.Header>
