@@ -47,6 +47,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
         public InstallProcessPage()
         {
             this.InitializeComponent();
+            NavigationCacheMode = NavigationCacheMode.Disabled;
         }
 
         private bool _isBusy = false;
@@ -133,6 +134,13 @@ namespace locuste.dashboard.deploy.uwp.Frames
                 SocketListener.ProgressUpdateHandler += ProgressReceived;
             }
             Client = (e.Parameter as WebClientParam)?.Client;
+        }
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+            if (SocketListener == null) return;
+            SocketListener.FileCopyInfoHandler -= FileCopyInfoReceived;
+            SocketListener.ProgressUpdateHandler -= ProgressReceived;
         }
 
         private void InstallVersionBtn_Click(object sender, RoutedEventArgs e)

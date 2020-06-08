@@ -7,19 +7,34 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewModels="using:locuste.dashboard.deploy.uwp.ViewModels"
     xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    xmlns:utils="using:locuste.dashboard.deploy.uwp.Utils"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <utils:ObjectVisbilityConverter x:Key="ObjectVisbilityConverter"/>
         <converters:BoolToObjectConverter x:Key="InverseBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
+        <utils:IsNullObjectVisbilityConverter x:Key="IsNullObjectVisbilityConverter" />
     </Page.Resources>
 
     <Grid>
 
         <Hub  x:Name="MainSection" >
             <Hub.Header>
-                Unité de déploiement
+                <Grid>
+                    <TextBlock Visibility="{x:Bind LastStatus, Converter={StaticResource IsNullObjectVisbilityConverter}, Mode=OneWay}" Text="Unité de déploiement"></TextBlock>
+                    <Grid DataContext="{x:Bind LastStatus, Mode=OneWay}" Visibility="{x:Bind LastStatus, Converter={StaticResource ObjectVisbilityConverter}, Mode=OneWay}" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.ColumnSpacing>15</Grid.ColumnSpacing>
+                        <FontIcon VerticalAlignment="Center" FontSize="32" Foreground="{x:Bind  LastStatus.Foreground, Mode=OneWay}"  FontFamily="Segoe MDL2 Assets" Glyph="{x:Bind LastStatus.Content, Mode=OneWay}" />
+                        <TextBlock VerticalAlignment="Center" Foreground="{x:Bind  LastStatus.Foreground, Mode=OneWay}"  Grid.Column="1"  Text="{x:Bind LastStatus.Description, Mode=OneWay}"></TextBlock>
+                    </Grid>
+                </Grid>
+
             </Hub.Header>
             <HubSection Header="Cible" >
                 <DataTemplate x:DataType="local:ActionPage">
@@ -111,4 +126,5 @@
             <TextBlock Visibility="{x:Bind IsConnecting, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}" VerticalAlignment="Center" HorizontalAlignment="Center">Veuillez patienter</TextBlock>
         </Grid>
     </Grid>
+    
 </Page>

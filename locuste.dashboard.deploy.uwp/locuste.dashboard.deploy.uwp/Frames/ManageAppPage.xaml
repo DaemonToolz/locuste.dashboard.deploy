@@ -6,9 +6,15 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:locuste.dashboard.deploy.uwp.Models"
+    xmlns:utils="using:locuste.dashboard.deploy.uwp.Utils"
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <utils:ObjectToBoolConverter x:Key="ObjectToBoolConverter" />
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+    </Page.Resources>
     <Grid >
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"></ColumnDefinition>
@@ -26,25 +32,27 @@
         <TextBlock Text="Version globale LOCUSTE"></TextBlock>
         <TextBlock Grid.Column="1" Text="{x:Bind ProjectVersion.Version.GlobalVersion, Mode=OneWay}"> </TextBlock>
 
-        <StackPanel  Spacing="10" Grid.Row="1" Grid.Column="1">
-            <Button HorizontalAlignment="Stretch" x:Name="StartSelectedBtn" >Démarrer l'application sékectionnée</Button>
-            <Button HorizontalAlignment="Stretch" x:Name="StopSelectedBtn" >Arrêter l'application sékectionnée</Button>
+        <StackPanel  DataContext="{x:Bind AvailableVersionList}" Spacing="10" Grid.Row="1" Grid.Column="1">
+            <Button Tag="Start" IsEnabled="{x:Bind AvailableVersionList.SelectedItem, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}"  HorizontalAlignment="Stretch" x:Name="StartSelectedBtn" Click="StartStop_Click" >Démarrer l'application sékectionnée</Button>
+            <Button Tag="Stop" IsEnabled="{x:Bind AvailableVersionList.SelectedItem, Converter={StaticResource ObjectToBoolConverter}, Mode=OneWay}" HorizontalAlignment="Stretch" x:Name="StopSelectedBtn" Click="StartStop_Click" >Arrêter l'application sékectionnée</Button>
 
         </StackPanel>
 
-        <ListView Grid.Row="1"  ItemsSource="{x:Bind ProjectVersion.Version.DetailedVersions, Mode=OneWay}">
+        <ListView x:Name="AvailableVersionList" Grid.Row="1"  ItemsSource="{x:Bind ProjectVersion.Version.DetailedVersions, Mode=OneWay}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:AppVersion">
                     <Grid>
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"></ColumnDefinition>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                <ColumnDefinition Width="Auto"></ColumnDefinition>
+
                             </Grid.ColumnDefinitions>
                             <Grid.ColumnSpacing>15</Grid.ColumnSpacing>
-                            <TextBlock Text="{x:Bind Name}"></TextBlock>
+                            <SymbolIcon Foreground="LimeGreen" Visibility="{x:Bind IsRunning, Converter={StaticResource BoolToVisibilityConverter}}" Symbol="Play"></SymbolIcon>
                             <TextBlock Grid.Column="1" Text="{x:Bind Version}"></TextBlock>
-
+                            <TextBlock Grid.Column="2" Text="{x:Bind Name}"></TextBlock>
                         </Grid>
                     </Grid>
                 </DataTemplate>

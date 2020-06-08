@@ -25,8 +25,8 @@ namespace locuste.dashboard.deploy.uwp.Utils
                     {
                         Device = new DeviceInfo()
                         {
-                            Name = (pair.Value as ApplicationDataCompositeValue)["Name"].ToString(),
-                            IPAddress = (pair.Value as ApplicationDataCompositeValue)["IPAddress"].ToString()
+                            Name = (pair.Value as ApplicationDataCompositeValue)?["Name"].ToString(),
+                            IPAddress = (pair.Value as ApplicationDataCompositeValue)?["IPAddress"].ToString()
                         }
 
                     });

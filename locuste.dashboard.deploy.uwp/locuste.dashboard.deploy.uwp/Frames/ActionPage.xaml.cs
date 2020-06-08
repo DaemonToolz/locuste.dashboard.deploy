@@ -19,6 +19,8 @@ using locuste.dashboard.deploy.uwp.Models;
 using locuste.dashboard.deploy.uwp.ViewModels;
 using locuste.dashboard.deploy.uwp.Web.SocketIO;
 using System.ComponentModel;
+using System.Net.Sockets;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.ExtendedExecution.Foreground;
 using Windows.Storage.Pickers;
 using Windows.UI.Core;
@@ -38,6 +40,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
 
         private HttpClient _client;
         private Rect _size;
+        private UIStatus _lastStatus;
         public ActionPage()
         {
             RegisteredDevices = DeviceDiscovery.DiscoverRegisteredDevices();
@@ -72,6 +75,11 @@ namespace locuste.dashboard.deploy.uwp.Frames
             private set => SetField(ref _installInfo, value);
         }
 
+        public UIStatus LastStatus
+        {
+            get => _lastStatus;
+            private set => SetField(ref _lastStatus, value);
+        }
 
         public DeviceInfoVM TargetDevice
         {
@@ -170,9 +178,18 @@ namespace locuste.dashboard.deploy.uwp.Frames
             if (TargetDevice == null){ return;}
 
             IsConnecting = true;
-            SocketListener?.Disconnect();
+            if (SocketListener != null)
+            {
+                SocketListener.FileCopyInfoHandler -= FileCopyInfoReceived;
+                SocketListener.ProgressUpdateHandler -= ProgressReceived;
+                SocketListener.OnConnectionEvent -= ConnexionEventReceived;
+                SocketListener.DisconnectedByUser = true;
+                SocketListener.Disconnect();
+            }
 
             SocketListener = new SocketIoWrapper(TargetDevice.Device.IPAddress);
+            SocketListener.OnConnectionEvent += ConnexionEventReceived;
+
             SocketListener.Connect().ContinueWith(result =>
             {
              
@@ -185,7 +202,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
 
                 SocketListener.FileCopyInfoHandler += FileCopyInfoReceived;
                 SocketListener.ProgressUpdateHandler += ProgressReceived;
-
+               
                 Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, AgileCallback);
             });
         }
@@ -203,6 +220,18 @@ namespace locuste.dashboard.deploy.uwp.Frames
                     OngoingOperation = args.FileCount != args.FileIndex;
                     IsFree = !OngoingOperation;
                 });
+        }
+
+
+        private void ConnexionEventReceived(object sender, ConnectionEventArgs args)
+        {
+            Task.Delay(10000).ContinueWith(t =>
+                Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { LastStatus = null; })
+            );
+
+            Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
+                LastStatus = args.Status;
+            });
         }
 
 

@@ -20,6 +20,7 @@ using locuste.dashboard.deploy.uwp.Models;
 using locuste.dashboard.deploy.uwp.ViewModels;
 using locuste.dashboard.deploy.uwp.Web;
 using locuste.dashboard.deploy.uwp.Web.Http;
+using locuste.dashboard.deploy.uwp.Web.SocketIO;
 
 // Pour plus d'informations sur le modèle d'élément Page vierge, consultez la page https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -31,10 +32,12 @@ namespace locuste.dashboard.deploy.uwp.Frames
     public sealed partial class ManageAppPage : Page, INotifyPropertyChanged
     {
         private HttpClient Client;
+        private SocketIoWrapper SocketListener;
         public ManageAppPage()
         {
             this.InitializeComponent();
-        } // Client.GetInstalledVersion();
+            NavigationCacheMode = NavigationCacheMode.Disabled;
+        } 
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
@@ -42,18 +45,48 @@ namespace locuste.dashboard.deploy.uwp.Frames
 
 
             Client = (e.Parameter as WebClientParam)?.Client;
+
+            LoadRunningVersions();
+            SocketListener = (e.Parameter as WebClientParam)?.Wrapper;
+            if (SocketListener == null) return;
+            SocketListener.OnUpdateEvent += OnAppUpdate;
+        }
+
+        private void LoadRunningVersions()
+        {
             Client?.GetInstalledVersion().ContinueWith(async task =>
+            {
+                task.Wait();
+
+                await Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+                    () =>
+                    {
+                        ProjectVersion.Version = task.Result;
+                    });
+            });
+        }
+
+        private async void OnAppUpdate(object sender, AppVersionEventArgs args) {
+            var obj = ProjectVersion.Version.DetailedVersions.Single(data => data.Name == args.Name && data.Version == args.Version);
+            ProjectVersion.Version.DetailedVersions.Remove(obj);
+            obj.IsRunning = args.IsRunning;
+            ProjectVersion.Version.DetailedVersions.Add(obj);
+            await Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
+                () =>
                 {
-                    task.Wait();
-                    
-                    await Dispatcher.RunAsync(CoreDispatcherPriority.Normal,
-                        () =>
-                        {
-                            ProjectVersion.Version = task.Result;
-                        });
+                    ProjectVersion.Version = new ProjectVersion()
+                    {
+                        DetailedVersions = ProjectVersion.Version.DetailedVersions,
+                        GlobalVersion = ProjectVersion.Version.GlobalVersion
+                    };
                 });
         }
 
+        protected override void OnNavigatedFrom(NavigationEventArgs e) {
+            base.OnNavigatedFrom(e);
+            if (SocketListener == null) return;
+            SocketListener.OnUpdateEvent -= OnAppUpdate;
+        }
 
         private ProjectVersionVM _projectVersion = new ProjectVersionVM();
 
@@ -78,5 +111,20 @@ namespace locuste.dashboard.deploy.uwp.Frames
             return true;
         }
 
+       
+        private void StartStop_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as Button)?.Tag == null) return;
+            if (AvailableVersionList.SelectedItem == null) return;
+
+            var btn = (Button) sender;
+            var select = (AppVersion)AvailableVersionList.SelectedItem;
+            Client?.SendCommand(new ExecCommand
+            {
+                Version = select.Version,
+                Application = select.Name,
+                Command = Enum.Parse<CommandType> (btn.Tag.ToString()),
+            });
+        }
     }
 }

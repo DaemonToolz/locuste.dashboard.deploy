@@ -11,6 +11,7 @@ namespace locuste.dashboard.deploy.uwp.ViewModels
 {
     public class UIStatus
     {
+        public string Description;
         public string Content;
         public Brush Foreground;
 

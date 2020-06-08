@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    xmlns:utils="using:locuste.dashboard.deploy.uwp.Utils"
     mc:Ignorable="d"
 
 
@@ -13,6 +14,7 @@
     <Page.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:BoolToObjectConverter x:Key="InverseBoolToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
+        <utils:NegateBooleanConverter x:Key="NegateBooleanConverter" />
     </Page.Resources>
 
     <StackPanel Spacing="10">
@@ -22,8 +24,8 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid.ColumnSpacing>5</Grid.ColumnSpacing>
-            <Button HorizontalAlignment="Stretch" x:Name="InstallVersionBtn" Click="InstallVersionBtn_Click" > Installer une version</Button>
-            <Button  HorizontalAlignment="Stretch" Grid.Column="1" x:Name="UninstallBtn" Click="UninstallBtn_Click" >Désinstaller une version</Button>
+            <Button  IsEnabled="{x:Bind IsBusy, Converter={StaticResource NegateBooleanConverter}, Mode=OneWay}" HorizontalAlignment="Stretch" x:Name="InstallVersionBtn" Click="InstallVersionBtn_Click" > Installer une version</Button>
+            <Button   IsEnabled="{x:Bind IsBusy, Converter={StaticResource NegateBooleanConverter}, Mode=OneWay}" HorizontalAlignment="Stretch" Grid.Column="1" x:Name="UninstallBtn" Click="UninstallBtn_Click" >Désinstaller une version</Button>
         </Grid>
 
 

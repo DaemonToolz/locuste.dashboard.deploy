@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace locuste.dashboard.deploy.uwp.Models
@@ -34,5 +35,24 @@ namespace locuste.dashboard.deploy.uwp.Models
         [JsonProperty("version")]
         public string Version;
 
+        [System.Runtime.Serialization.DataMember(Name = "is_running")]
+        [JsonProperty("is_running")]
+        public bool IsRunning;
+
+    }
+
+    public class AppVersionEventArgs : EventArgs {
+
+            public string Name;
+            public string Version;
+            public bool IsRunning;
+
+            public AppVersionEventArgs(AppVersion original)
+            {
+                Name = original.Name;
+                Version = original.Version;
+                IsRunning = original.IsRunning;
+            }
+        
     }
 }
