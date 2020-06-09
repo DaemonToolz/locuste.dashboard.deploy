@@ -19,7 +19,7 @@ namespace locuste.dashboard.deploy.uwp.Controls.Dialogs
 {
     public sealed partial class VersionListDialog : ContentDialog
     {
-        public List<string> Versions;
+        private List<string> Versions;
 
         public VersionListDialog(List<string> data)
         {

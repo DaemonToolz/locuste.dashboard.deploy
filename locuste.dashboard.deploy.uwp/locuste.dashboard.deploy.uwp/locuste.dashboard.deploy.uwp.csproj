@@ -141,9 +141,6 @@
       <DependentUpon>ErrorFrame.xaml</DependentUpon>
     </Compile>
     <Compile Include="Frames\FrameUtils.cs" />
-    <Compile Include="Controls\PackageUploaderControl.xaml.cs">
-      <DependentUpon>PackageUploaderControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Frames\InstallProcessPage.xaml.cs">
       <DependentUpon>InstallProcessPage.xaml</DependentUpon>
     </Compile>
@@ -265,10 +262,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Frames\ActionPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Controls\PackageUploaderControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

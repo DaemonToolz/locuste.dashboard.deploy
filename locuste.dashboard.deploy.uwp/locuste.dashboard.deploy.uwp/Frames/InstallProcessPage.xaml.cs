@@ -147,16 +147,17 @@ namespace locuste.dashboard.deploy.uwp.Frames
         {
 
             Client.GetVersions().ContinueWith(results => {
-                Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    var dialog = new VersionInstallDialog(results.Result, Client)
+                if(results != null)
+                    Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        Title = "Installer une version",
-                    };
+                        var dialog = new VersionInstallDialog(results.Result, Client)
+                        {
+                            Title = "Installer une version",
+                        };
 
-                    await dialog.ShowAsync();
+                        await dialog.ShowAsync();
 
-                });
+                    });
 
             });
         }

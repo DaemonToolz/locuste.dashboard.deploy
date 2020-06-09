@@ -21,7 +21,7 @@ namespace locuste.dashboard.deploy.uwp.Controls.Dialogs
 {
     public sealed partial class VersionInstallDialog : ContentDialog
     {
-        public List<string> Versions;
+        private List<string> Versions;
         private HttpClient _client;
         public VersionInstallDialog(List<string> data, HttpClient client)
         {
@@ -34,7 +34,7 @@ namespace locuste.dashboard.deploy.uwp.Controls.Dialogs
 
         private void VersionInstallDialog_OnPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (VersionList.SelectedItem != null)
+            if ( _client != null && VersionList.SelectedItem != null)
             {
                 _client.StartInstallationProcedure(VersionList.SelectedItem.ToString());
             }

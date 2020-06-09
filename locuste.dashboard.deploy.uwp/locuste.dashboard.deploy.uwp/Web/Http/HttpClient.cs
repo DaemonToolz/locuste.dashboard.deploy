@@ -30,28 +30,63 @@ namespace locuste.dashboard.deploy.uwp.Web.Http
 
         public Task<List<string>> GetVersions()
         {
-            return _client.GetAsync<List<string>>(new RestRequest("versions"));
+            try
+            {
+                return _client.GetAsync<List<string>>(new RestRequest("versions"));
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public void StartInstallationProcedure(string version)
         {
-            _client.GetAsync<dynamic>(new RestRequest($"install/{version}"));
+            try
+            {
+                _client.GetAsync<dynamic>(new RestRequest($"install/{version}"));
+            }
+            catch 
+            {
+                // TODO Trouver un moyen de remonter l'erreur
+            }
         }
 
         public void DeleteVersionNumber(string version)
         {
-            _client.Delete<dynamic>(new RestRequest($"delete/{version}"));
+            try
+            {
+                _client.Delete<dynamic>(new RestRequest($"delete/{version}"));
+            }
+            catch
+            {
+                // TODO Trouver un moyen de remonter l'erreur
+            }
         }
 
         public Task<ProjectVersion> GetInstalledVersion()
         {
-            return _client.GetAsync<ProjectVersion>(new RestRequest($"version/current"));
+            try
+            {
+                return _client.GetAsync<ProjectVersion>(new RestRequest($"version/current"));
+            }
+            catch
+            {
+                return null;
+            }
         }
 
 
         public Task<ProjectVersion> Uninstall()
         {
-            return _client.GetAsync<ProjectVersion>(new RestRequest("uninstall"));
+            try
+            {
+                return _client.GetAsync<ProjectVersion>(new RestRequest("uninstall"));
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public Task<HttpResponseMessage> SendCommand(ExecCommand cmd)
@@ -69,9 +104,9 @@ namespace locuste.dashboard.deploy.uwp.Web.Http
                 );
 
             }
-            catch // Trouver un moeyen de remonter l'erreur'
+            catch 
             {
-
+                // TODO Trouver un moyen de remonter l'erreur
             }
         }
     }

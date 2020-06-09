@@ -249,15 +249,16 @@ namespace locuste.dashboard.deploy.uwp.Frames
         {
             Client.GetVersions().ContinueWith( results =>
             {
-                Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    var dialog = new VersionListDialog(results.Result)
+                if(results != null)
+                    Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        Title = "Liste des versions disponibles",
-                    };
+                        var dialog = new VersionListDialog(results.Result)
+                        {
+                            Title = "Liste des versions disponibles",
+                        };
 
-                    await dialog.ShowAsync();
-                });
+                        await dialog.ShowAsync();
+                    });
 
             });
         }
@@ -271,15 +272,16 @@ namespace locuste.dashboard.deploy.uwp.Frames
         {
             Client.GetVersions().ContinueWith(results =>
             {
-                Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, async () =>
-                {
-                    var dialog = new VersionDeleteDialog(results.Result, Client)
+                if(results != null )
+                    Dispatcher?.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
-                        Title = "Supprimer une ou des versions",
-                    };
+                        var dialog = new VersionDeleteDialog(results.Result, Client)
+                        {
+                            Title = "Supprimer une ou des versions",
+                        };
 
-                    await dialog.ShowAsync();
-                });
+                        await dialog.ShowAsync();
+                    });
 
             });
         }

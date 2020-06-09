@@ -21,7 +21,7 @@ namespace locuste.dashboard.deploy.uwp.Controls.Dialogs
 {
     public sealed partial class VersionDeleteDialog : ContentDialog
     {
-        public List<string> Versions;
+        private List<string> Versions;
 
         private HttpClient _client;
         public VersionDeleteDialog(List<string> data, HttpClient client)
@@ -39,7 +39,7 @@ namespace locuste.dashboard.deploy.uwp.Controls.Dialogs
 
         private void VersionDeleteDialog_OnSecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
         {
-            if (VersionList.SelectedItems != null && VersionList.SelectedItems.Count > 0)
+            if (VersionList.SelectedItems != null && VersionList.SelectedItems.Count > 0 && _client != null)
             {
                 foreach (var versionListSelectedItem in VersionList.SelectedItems)
                 {

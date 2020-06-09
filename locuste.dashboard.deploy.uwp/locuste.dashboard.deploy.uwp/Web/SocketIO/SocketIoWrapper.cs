@@ -22,9 +22,9 @@ namespace locuste.dashboard.deploy.uwp.Web.SocketIO
         {
             _uri = target;
             _client = new SocketIOClient.SocketIO(new Uri($"ws://{_uri}:31000/"));
-            _client.OnConnected += onConnected;
+            _client.OnConnected += OnConnected;
      
-            _client.OnDisconnected += onDisconnected;
+            _client.OnDisconnected += OnDisconnected;
             _client.On("progress", data => {
                 var value = data.GetValue<FileCopyInfo>();
                 OnFileCopyInfoHandlerEvent(new FileCopyInfoArgs(value));
@@ -45,18 +45,17 @@ namespace locuste.dashboard.deploy.uwp.Web.SocketIO
 
         private void ShowToast(string title, string content)
         {
-            ToastNotifier ToastNotifier = ToastNotificationManager.CreateToastNotifier();
-            Windows.Data.Xml.Dom.XmlDocument toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText02);
-            Windows.Data.Xml.Dom.XmlNodeList toastNodeList = toastXml.GetElementsByTagName("text");
-            toastNodeList.Item(0).AppendChild(toastXml.CreateTextNode(title));
-            toastNodeList.Item(1).AppendChild(toastXml.CreateTextNode(content));
-            Windows.Data.Xml.Dom.IXmlNode toastNode = toastXml.SelectSingleNode("/toast");
+            var toastNotifier = ToastNotificationManager.CreateToastNotifier();
+            var toastXml = ToastNotificationManager.GetTemplateContent(ToastTemplateType.ToastText02);
+            var toastNodeList = toastXml.GetElementsByTagName("text");
+            toastNodeList.Item(0)?.AppendChild(toastXml.CreateTextNode(title));
+            toastNodeList.Item(1)?.AppendChild(toastXml.CreateTextNode(content));
+            toastXml.SelectSingleNode("/toast");
             Windows.Data.Xml.Dom.XmlElement audio = toastXml.CreateElement("audio");
             audio.SetAttribute("src", "ms-winsoundevent:Notification.SMS");
 
-            ToastNotification toast = new ToastNotification(toastXml);
-            toast.ExpirationTime = DateTime.Now.AddSeconds(4);
-            ToastNotifier.Show(toast);
+            var toast = new ToastNotification(toastXml) {ExpirationTime = DateTime.Now.AddSeconds(4)};
+            toastNotifier.Show(toast);
         }
 
         public async Task<bool> Connect()
@@ -124,7 +123,7 @@ namespace locuste.dashboard.deploy.uwp.Web.SocketIO
         }
 
 
-        private async void onConnected(object sender, EventArgs args )
+        private async void OnConnected(object sender, EventArgs args )
         {
             var stat = Statuses.GetStatus(EventStatus.Success);
             stat.Description = "Connection réussie";
@@ -134,19 +133,17 @@ namespace locuste.dashboard.deploy.uwp.Web.SocketIO
             });
         }
 
-        private  async void onDisconnected(object sender, string args)
+        private  async void OnDisconnected(object sender, string args)
         {
-            if(!DisconnectedByUser)
+            if (DisconnectedByUser) return;
+            var stat = Statuses.GetStatus(EventStatus.Error);
+            stat.Description = "Déconnecté du serveur, reconnection en cours";
+            OnUpdateHandlerEvent(new ConnectionEventArgs()
             {
-                var stat = Statuses.GetStatus(EventStatus.Error);
-                stat.Description = "Déconnecté du serveur, reconnection en cours";
-                OnUpdateHandlerEvent(new ConnectionEventArgs()
-                {
-                    Status = stat
-                });
+                Status = stat
+            });
 
-                await Connect();
-            }
+            await Connect();
         }
   
 

@@ -9,8 +9,9 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <StackPanel AllowDrop="True"  DragOver="OnFileDragOver" DragLeave="OnFileDragLeave" Drop="OnFileDrop">
+    <StackPanel AllowDrop="True"  DragOver="OnFileDragOver" DragLeave="OnFileDragLeave" Drop="OnFileDrop"  Spacing="10">
         <TextBox  Text="{x:Bind Version, Mode=TwoWay}" PlaceholderText="Nommer la version"></TextBox>
+        <Button  x:Name="LoadOnlineVersion" HorizontalAlignment="Stretch">Charger une version en ligne</Button>
         <Button  x:Name="LoadFileBtn" HorizontalAlignment="Stretch" Click="LoadFileBtn_Click">Sélectionner</Button>
         <TextBlock  TextAlignment="Center"   VerticalAlignment="Center"  HorizontalAlignment="Stretch">Ou Drag'n'Drop</TextBlock>
 
