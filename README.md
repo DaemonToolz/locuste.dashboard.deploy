@@ -1,6 +1,7 @@
 # locuste.dashboard.deploy
 Locuste - Outil de déploiement et de mise à jour
 
+<img width="2609" alt="locuste-launcher-app" src="https://user-images.githubusercontent.com/6602774/84285943-59bb7180-ab3e-11ea-935b-ffe009749385.png">
 
 Le project Locuste se divise en 4 grandes sections : 
 * Automate (Drone Automata) PYTHON (https://github.com/DaemonToolz/locuste.drone.automata)
