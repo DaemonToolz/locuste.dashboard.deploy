@@ -9,32 +9,47 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <StackPanel AllowDrop="True"  DragOver="OnFileDragOver" DragLeave="OnFileDragLeave" Drop="OnFileDrop"  Spacing="10">
-        <TextBox  Text="{x:Bind Version, Mode=TwoWay}" PlaceholderText="Nommer la version"></TextBox>
-        <Button  x:Name="LoadOnlineVersion" HorizontalAlignment="Stretch">Charger une version en ligne</Button>
-        <Button  x:Name="LoadFileBtn" HorizontalAlignment="Stretch" Click="LoadFileBtn_Click">Sélectionner</Button>
-        <TextBlock  TextAlignment="Center"   VerticalAlignment="Center"  HorizontalAlignment="Stretch">Ou Drag'n'Drop</TextBlock>
+    <Page.Resources>
+        
+    </Page.Resources>
 
-        <GridView  x:Name="FileList" ItemsSource="{x:Bind Files, Mode=OneWay}" IsItemClickEnabled="True" SelectionMode="None" >
-                <GridView.ItemTemplate>
-                    <DataTemplate x:DataType="storage:StorageFile">
-                        <StackPanel>
-                            <SymbolIcon  HorizontalAlignment="Stretch" Symbol="Upload"></SymbolIcon>
-                            <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{x:Bind Name}"></TextBlock>
-                        </StackPanel>
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-            </GridView>
+    <Grid>
 
-        <RelativePanel  x:Name="AddFilePanel" Background="#44000000" Visibility="Collapsed">
-                <SymbolIcon x:Name="AddSymbol" Symbol="Add" RelativePanel.AlignVerticalCenterWithPanel="True" RelativePanel.AlignHorizontalCenterWithPanel="True" Foreground="White" RenderTransformOrigin="0.5,0.5">
-                    <SymbolIcon.RenderTransform>
-                        <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
-                    </SymbolIcon.RenderTransform>
-                </SymbolIcon>
-            <TextBlock RelativePanel.Below="AddSymbol" RelativePanel.AlignHorizontalCenterWithPanel="True" Margin="0,12,0,0" Text="Ajouter un ou plusieurs fichiers" Foreground="White" FontSize="24"></TextBlock>
-        </RelativePanel>
+        <StackPanel AllowDrop="True"  DragOver="OnFileDragOver" DragLeave="OnFileDragLeave" Drop="OnFileDrop"  Spacing="10">
+            <TextBox  Text="{x:Bind Version, Mode=TwoWay}" PlaceholderText="Nommer la version"></TextBox>
+            <Button  x:Name="LoadOnlineVersion" HorizontalAlignment="Stretch">Charger une version en ligne</Button>
+            <Button  x:Name="LoadFileBtn" HorizontalAlignment="Stretch" Click="LoadFileBtn_Click">Sélectionner</Button>
+            <TextBlock  TextAlignment="Center"   VerticalAlignment="Center"  HorizontalAlignment="Stretch">Ou Drag'n'Drop</TextBlock>
 
-        <Button  x:Name="SendFilesBtn"  HorizontalAlignment="Stretch" Click="SendFilesBtn_Click">Uploader</Button>
-    </StackPanel>
+            <GridView  x:Name="FileList" ItemsSource="{x:Bind Files, Mode=OneWay}" IsItemClickEnabled="True" SelectionMode="None" >
+                    <GridView.ItemTemplate>
+                        <DataTemplate x:DataType="storage:StorageFile">
+                            <StackPanel>
+                                <SymbolIcon  HorizontalAlignment="Stretch" Symbol="Upload"></SymbolIcon>
+                                <TextBlock  VerticalAlignment="Center" HorizontalAlignment="Stretch" Text="{x:Bind Name}"></TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </GridView.ItemTemplate>
+                </GridView>
+
+            <RelativePanel  x:Name="AddFilePanel" Background="#44000000" Visibility="Collapsed">
+                    <SymbolIcon x:Name="AddSymbol" Symbol="Add" RelativePanel.AlignVerticalCenterWithPanel="True" RelativePanel.AlignHorizontalCenterWithPanel="True" Foreground="White" RenderTransformOrigin="0.5,0.5">
+                        <SymbolIcon.RenderTransform>
+                            <CompositeTransform ScaleX="1.5" ScaleY="1.5"/>
+                        </SymbolIcon.RenderTransform>
+                    </SymbolIcon>
+                <TextBlock RelativePanel.Below="AddSymbol" RelativePanel.AlignHorizontalCenterWithPanel="True" Margin="0,12,0,0" Text="Ajouter un ou plusieurs fichiers" Foreground="White" FontSize="24"></TextBlock>
+            </RelativePanel>
+
+            <Button  x:Name="ClearBtn"  HorizontalAlignment="Stretch" Click="ClearBtn_Click" Background="DarkRed">Effacer</Button>
+
+            <Button  x:Name="SendFilesBtn"  HorizontalAlignment="Stretch" Click="SendFilesBtn_Click">Uploader</Button>
+        </StackPanel>
+
+        <Grid Background="#BF000000" Visibility="{x:Bind IsLoading, Converter={StaticResource BoolToVisibilityConverter}, Mode=OneWay}">
+            <ProgressRing Height="250" Width="250" IsActive="True"></ProgressRing>
+            <TextBlock x:Name="FileUploadTextbox"  VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+        </Grid>
+    </Grid>
+
 </Page>

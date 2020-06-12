@@ -6,11 +6,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -33,6 +36,7 @@ namespace locuste.dashboard.deploy.uwp.Frames
         public VersionUploaderPage()
         {
             this.InitializeComponent();
+            NavigationCacheMode = NavigationCacheMode.Required;
         }
 
         private HttpClient Client;
@@ -67,7 +71,6 @@ namespace locuste.dashboard.deploy.uwp.Frames
                 {
                     foreach (var appFile in items.OfType<StorageFile>())
                     {
-                        Files.Clear(); // Multi-files upload integration in the future; so we that logic
                         this.Files.Add(appFile);
                     }
                 }
@@ -84,19 +87,38 @@ namespace locuste.dashboard.deploy.uwp.Frames
                 SuggestedStartLocation = PickerLocationId.DocumentsLibrary
             };
             picker.FileTypeFilter.Add(".zip");
-            var file = await picker.PickSingleFileAsync();
-            if (file == null) return;
-            Files.Clear();
-            Files.Add(file);
+            var files = await picker.PickMultipleFilesAsync();
+            if (files == null) return;
+            foreach (var file in files)
+            {
+                Files.Add(file);
+            }
+          
         }
 
         private void SendFilesBtn_Click(object sender, RoutedEventArgs e)
         {
+    
             if (Files.Count > 0 && Version.Trim() != "")
             {
-                Client.SendInstallPackage(Version, Files[0]);
-                Files.Clear();
+                IsLoading = true;
+                Task.Run(() =>
+                {
+                    foreach (var file in Files)
+                    {
+                        Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { FileUploadTextbox.Text = file.Name; });
+                        Client.SendInstallPackage(Version, file);
+                    }
+
+                    Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        Files.Clear(); 
+                        IsLoading = false; });
+                });
+            
+               
             }
+          
         }
 
         private string _version = "";
@@ -105,8 +127,16 @@ namespace locuste.dashboard.deploy.uwp.Frames
         {
             get => _version;
             set => SetField(ref _version, value);
-
         }
+
+        private bool _isLoading = false;
+
+        public bool IsLoading
+        {
+            get => _isLoading;
+            set => SetField(ref _isLoading, value);
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
@@ -127,6 +157,9 @@ namespace locuste.dashboard.deploy.uwp.Frames
             Client = (e.Parameter as WebClientParam)?.Client;
         }
 
-
+        private void ClearBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Files.Clear();
+        }
     }
 }
